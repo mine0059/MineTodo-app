@@ -18,6 +18,12 @@ class TabsScreen extends StatefulWidget {
 }
 
 class _TabsScreenState extends State<TabsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<TaskBloc>().add(LoadTasksFromPreferences());
+  }
+
   final List<Map<String, dynamic>> _pageDetails = [
     {
       'pageName': const PendingTaskScreen() as Widget,
@@ -88,6 +94,14 @@ class _TabsScreenState extends State<TabsScreen> {
         children: [
           // Custom App Bar
           BlocBuilder<TaskBloc, TaskState>(builder: (context, state) {
+            final int totalTasks =
+                state.pendingTasks.length + state.completedTasks.length;
+            double progress = 0;
+            String percentageText = '0%';
+            if (totalTasks > 0) {
+              progress = (state.completedTasks.length / totalTasks);
+              percentageText = '${(progress * 100).toStringAsFixed(0)}%';
+            }
             return Container(
               margin: const EdgeInsets.only(top: 60),
               width: double.infinity,
@@ -97,16 +111,26 @@ class _TabsScreenState extends State<TabsScreen> {
                 children: [
                   // progress indicator
                   if (_selectedPageIndex == 0)
-                    SizedBox(
-                      width: 60,
-                      height: 60,
-                      child: CircularProgressIndicator(
-                        // value: state.pendingTasks.length /
-                        //     state.completedTasks.length,
-                        backgroundColor:
-                            Theme.of(context).colorScheme.inversePrimary,
-                        valueColor: const AlwaysStoppedAnimation(Colors.grey),
-                      ),
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        SizedBox(
+                          width: 60,
+                          height: 60,
+                          child: CircularProgressIndicator(
+                            value: progress,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.inversePrimary,
+                            valueColor:
+                                const AlwaysStoppedAnimation(Colors.grey),
+                          ),
+                        ),
+                        Text(
+                          percentageText,
+                          style: GoogleFonts.dmSerifText(
+                              fontSize: 18.0, fontWeight: FontWeight.bold),
+                        )
+                      ],
                     ),
                   const SizedBox(width: 25),
                   // Top Level Task Info

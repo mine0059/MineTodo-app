@@ -19,13 +19,17 @@ class ThemePreferences {
 
 class TaskPreferences {
   static const tasksKey = 'tasks';
+  static const removedTaskskey = 'removedTasks';
 
   // save the list of task to sharedPreference
-  Future<void> saveTasks(List<Task> tasks) async {
+  Future<void> saveTasks(List<Task> tasks, List<Task> removedTasks) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> tasksJsonList =
         tasks.map((task) => json.encode(task.toJson())).toList();
+    List<String> removedTasksJsonList =
+        removedTasks.map((task) => json.encode(task.toJson())).toList();
     await prefs.setStringList(tasksKey, tasksJsonList);
+    await prefs.setStringList(removedTaskskey, removedTasksJsonList);
   }
 
   // Load the List of Tasks from sharedPreferences
@@ -37,6 +41,20 @@ class TaskPreferences {
       return tasksJsonList
           .map((taskJson) => Task.fromJson(json.decode(taskJson)))
           .toList(); // convert the list of json to list of Task
+    }
+
+    return [];
+  }
+
+  // Load removed tasks
+  Future<List<Task>> loadRemovedTasks() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? removedTasksJsonList = prefs.getStringList(removedTaskskey);
+
+    if (removedTasksJsonList != null) {
+      return removedTasksJsonList
+          .map((taskJson) => Task.fromJson(json.decode(taskJson)))
+          .toList();
     }
 
     return [];

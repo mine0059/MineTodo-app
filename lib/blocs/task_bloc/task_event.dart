@@ -107,3 +107,5 @@ class SelectDate extends TaskEvent {
   @override
   List<Object> get props => [selectedDate];
 }
+
+class LoadTasksFromPreferences extends TaskEvent {}

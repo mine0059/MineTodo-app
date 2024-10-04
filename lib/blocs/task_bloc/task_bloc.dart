@@ -18,12 +18,15 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     on<MarkFavoriteOrUnFavoriteTask>(_onMarkFavoriteOrUnFavoriteTask);
     on<RemoveTask>(_onRemoveTask);
     on<RestoreTask>(_onRestoreTask);
+    on<LoadTasksFromPreferences>(_onLoadTasksFromPreferences);
 
-    _loadTasksFromPreferences();
+    // _loadTasksFromPreferences();
   }
 
-  Future<void> _loadTasksFromPreferences() async {
+  void _onLoadTasksFromPreferences(
+      LoadTasksFromPreferences event, Emitter<TaskState> emit) async {
     List<Task> loadedTasks = await taskPreferences.loadTasks();
+    List<Task> removedTasks = await taskPreferences.loadRemovedTasks();
 
     List<Task> pendingTasks =
         loadedTasks.where((task) => task.isCompleted == false).toList();
@@ -31,13 +34,16 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
         loadedTasks.where((task) => task.isCompleted == true).toList();
 
     emit(state.copyWith(
-        pendingTasks: pendingTasks, completedTasks: completedTasks));
+      pendingTasks: pendingTasks,
+      completedTasks: completedTasks,
+      removeTasks: removedTasks,
+    ));
   }
 
-  Future<void> _saveTasksToPreferences(
-      List<Task> pendingTasks, List<Task> completedTask) async {
+  Future<void> _saveTasksToPreferences(List<Task> pendingTasks,
+      List<Task> completedTask, List<Task> removedTasks) async {
     List<Task> allTasks = [...pendingTasks, ...completedTask];
-    await taskPreferences.saveTasks(allTasks);
+    await taskPreferences.saveTasks(allTasks, removedTasks);
   }
 
   void _onSelectDate(SelectDate event, Emitter<TaskState> emit) {
@@ -59,7 +65,11 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
 
     emit(state.copyWith(pendingTasks: updatedPendingTasks));
 
-    _saveTasksToPreferences(updatedPendingTasks, state.completedTasks);
+    _saveTasksToPreferences(
+      updatedPendingTasks,
+      state.completedTasks,
+      state.removeTasks,
+    );
   }
 
   void _onEditTask(EditTask event, Emitter<TaskState> emit) {
@@ -91,7 +101,11 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     emit(state.copyWith(
         pendingTasks: pendingTasks, completedTasks: completedTasks));
 
-    _saveTasksToPreferences(pendingTasks, completedTasks);
+    _saveTasksToPreferences(
+      pendingTasks,
+      completedTasks,
+      state.removeTasks,
+    );
   }
 
   void _onUpdateTask(UpdateTask event, Emitter<TaskState> emit) {
@@ -119,7 +133,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       completedTasks: completedTasks,
     ));
 
-    _saveTasksToPreferences(pendingTasks, completedTasks);
+    _saveTasksToPreferences(pendingTasks, completedTasks, state.removeTasks);
   }
 
   void _onMarkFavoriteOrUnFavoriteTask(
@@ -151,7 +165,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       completedTasks: completedTasks,
     ));
 
-    _saveTasksToPreferences(pendingTasks, completedTasks);
+    _saveTasksToPreferences(pendingTasks, completedTasks, state.removeTasks);
   }
 
 // Use a computed getter to return favorite tasks dynamically
@@ -185,7 +199,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       removeTasks: removeTasks,
     ));
 
-    _saveTasksToPreferences(pendingTasks, completedTasks);
+    _saveTasksToPreferences(pendingTasks, completedTasks, removeTasks);
   }
 
   void _onRestoreTask(RestoreTask event, Emitter<TaskState> emit) {
@@ -210,6 +224,6 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       removeTasks: removeTasks,
     ));
 
-    _saveTasksToPreferences(pendingTasks, completedTasks);
+    _saveTasksToPreferences(pendingTasks, completedTasks, removeTasks);
   }
 }
