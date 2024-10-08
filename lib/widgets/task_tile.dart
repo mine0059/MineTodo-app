@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mine_todo_app/blocs/bloc_exports.dart';
 import 'package:mine_todo_app/models/task.dart';
+import 'package:mine_todo_app/screens/add_task_screen.dart';
 import 'package:mine_todo_app/widgets/note_settings.dart';
+import 'package:panara_dialogs/panara_dialogs.dart';
+
+import '../utils/app_strings.dart';
 
 class TaskTile extends StatefulWidget {
   final Task task;
@@ -14,8 +18,31 @@ class TaskTile extends StatefulWidget {
 
 class _TaskTileState extends State<TaskTile> {
   void _editTask() {
-    // Navigator.of(context).pushNamed(EditTask);
-    print('You want to edit');
+    Navigator.of(context).pushNamed(
+      AddTaskScreen.id,
+      arguments: widget.task,
+    );
+  }
+
+// Delete A Task Dialog
+  dynamic deleteTaskDialog(BuildContext context) {
+    return PanaraConfirmDialog.show(
+      context,
+      title: AppStr.areYouSure,
+      message: "Do you really want to delete this task?",
+      confirmButtonText: "Yes",
+      cancelButtonText: "No",
+      onTapCancel: () {
+        Navigator.pop(context);
+      },
+      onTapConfirm: () {
+        // Delete Task Logic Here
+        context.read<TaskBloc>().add(DeleteTask(task: widget.task));
+        Navigator.pop(context);
+      },
+      panaraDialogType: PanaraDialogType.error,
+      barrierDismissible: false,
+    );
   }
 
   @override
@@ -115,13 +142,17 @@ class _TaskTileState extends State<TaskTile> {
               ? const Icon(Icons.bookmark)
               : const Icon(Icons.bookmark_add_outlined),
           NoteSettings(
-              task: widget.task,
-              editTaskCallBack: () => _editTask,
-              favoriteOrUnfavorite: () => context
-                  .read<TaskBloc>()
-                  .add(MarkFavoriteOrUnFavoriteTask(task: widget.task)),
-              restoreTaskCallback: () =>
-                  context.read<TaskBloc>().add(RestoreTask(task: widget.task)))
+            task: widget.task,
+            editTaskCallBack: _editTask,
+            favoriteOrUnfavorite: () => context
+                .read<TaskBloc>()
+                .add(MarkFavoriteOrUnFavoriteTask(task: widget.task)),
+            restoreTaskCallback: () =>
+                context.read<TaskBloc>().add(RestoreTask(task: widget.task)),
+            deleteForever: () {
+              deleteTaskDialog(context);
+            },
+          )
         ]),
       ),
     );

@@ -10,18 +10,21 @@ import 'package:mine_todo_app/widgets/rep_textfield.dart';
 import 'package:flutter_cupertino_date_picker_fork/flutter_cupertino_date_picker_fork.dart';
 
 class AddTaskScreen extends StatelessWidget {
-  const AddTaskScreen({super.key});
+  final Task? task;
+  const AddTaskScreen({super.key, this.task});
 
   static const id = 'task_screen.dart';
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController titleTaskController = TextEditingController();
-    TextEditingController descriptionTaskController = TextEditingController();
+    TextEditingController titleTaskController =
+        TextEditingController(text: task?.title ?? '');
+    TextEditingController descriptionTaskController =
+        TextEditingController(text: task?.subtitle ?? '');
 
     return BlocBuilder<TaskBloc, TaskState>(builder: (context, state) {
-      DateTime? selectedTime = state.selectedTime;
-      DateTime? selectedDate = state.selectedDate;
+      DateTime? selectedTime = state.selectedTime ?? task?.createdAtTime;
+      DateTime? selectedDate = state.selectedDate ?? task?.createdAtDate;
 
       // DateTime? time;
       // DateTime? date;
@@ -32,23 +35,51 @@ class AddTaskScreen extends StatelessWidget {
       // }
 
       // Main function for adding Task
-      dynamic createTask() {
+      dynamic handleTask() {
         String title = titleTaskController.text.trim();
         String subtitle = descriptionTaskController.text.trim();
 
         if (title.isNotEmpty && subtitle.isNotEmpty) {
-          var task = Task(
-            title: title,
-            subtitle: subtitle,
-            createdAtTime: selectedTime ?? DateTime.now(),
-            createdAtDate: selectedDate ?? DateTime.now(),
-          );
-          context.read<TaskBloc>().add(AddTask(
-                task: task,
+          // Add new task
+          if (task == null) {
+            var task = Task(
+              title: title,
+              subtitle: subtitle,
+              createdAtTime: selectedTime ?? DateTime.now(),
+              createdAtDate: selectedDate ?? DateTime.now(),
+            );
+            context.read<TaskBloc>().add(AddTask(
+                  task: task,
+                  selectedDate: selectedDate ?? DateTime.now(),
+                  selectedTime: selectedTime ?? DateTime.now(),
+                ));
+          } else {
+            // Edit existing Task
+            var updatedTask = task!.copyWith(
+              title: title,
+              subtitle: subtitle,
+              createdAtDate: selectedTime ?? DateTime.now(),
+              createdAtTime: selectedTime ?? DateTime.now(),
+            );
+            context.read<TaskBloc>().add(EditTask(
+                oldtask: task!,
+                newTask: updatedTask,
                 selectedDate: selectedDate ?? DateTime.now(),
-                selectedTime: selectedTime ?? DateTime.now(),
-              ));
+                selectedTime: selectedTime ?? DateTime.now()));
+          }
           Navigator.pop(context);
+          //   var task = Task(
+          //     title: title,
+          //     subtitle: subtitle,
+          //     createdAtTime: selectedTime ?? DateTime.now(),
+          //     createdAtDate: selectedDate ?? DateTime.now(),
+          //   );
+          //   context.read<TaskBloc>().add(AddTask(
+          //         task: task,
+          //         selectedDate: selectedDate ?? DateTime.now(),
+          //         selectedTime: selectedTime ?? DateTime.now(),
+          //       ));
+          //   Navigator.pop(context);
         } else {
           emptyFieldsWarning(context);
         }
@@ -80,7 +111,7 @@ class AddTaskScreen extends StatelessWidget {
               // Bottom side Botton
               _buildBottomSideButtons(
                 context,
-                createTask,
+                handleTask,
               ),
             ]),
           ),
@@ -106,7 +137,9 @@ class AddTaskScreen extends StatelessWidget {
           // According to the task condition it will Add or Update Task
           RichText(
               text: TextSpan(
-                  text: AppStr.addNewTask,
+                  text: task == null
+                      ? AppStr.addNewTask
+                      : AppStr.updateCurrentTask,
                   style: textTheme.headlineMedium,
                   children: const [
                 TextSpan(
@@ -124,67 +157,61 @@ class AddTaskScreen extends StatelessWidget {
   }
 
   // Bottom Task View Activity
-  Widget _buildBottomSideButtons(BuildContext context, Function createTask) {
+  Widget _buildBottomSideButtons(BuildContext context, Function handleTask) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
-      child: // Add or Update Task button
-          MaterialButton(
-        onPressed: () => createTask(),
-        minWidth: 150,
-        color: Theme.of(context).colorScheme.inversePrimary,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        height: 55,
-        child: Text(
-          AppStr.addTaskString,
-          style: TextStyle(color: Theme.of(context).colorScheme.primary),
-        ),
-      ),
-      // child: Row(
-      //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      //   children: [
-      //     // Delete current task button
-      //     MaterialButton(
-      //       onPressed: () {},
-      //       minWidth: 150,
-      //       color: Theme.of(context).colorScheme.inversePrimary,
-      //       shape: RoundedRectangleBorder(
-      //         borderRadius: BorderRadius.circular(15),
-      //       ),
-      //       height: 55,
-      //       child: Row(
-      //         children: [
-      //           Icon(
-      //             Icons.close,
-      //             color: Theme.of(context).colorScheme.primary,
-      //           ),
-      //           Text(
-      //             AppStr.deleteTask,
-      //             style: TextStyle(
-      //               color: Theme.of(context).colorScheme.primary,
-      //             ),
-      //           ),
-      //         ],
-      //       ),
-      //     ),
+      child: Row(
+        mainAxisAlignment: task == null
+            ? MainAxisAlignment.center
+            : MainAxisAlignment.spaceEvenly,
+        children: [
+          task == null
+              ? Container()
+              :
+              // Delete current task button
+              MaterialButton(
+                  onPressed: () {
+                    context.read<TaskBloc>().add(RemoveTask(task: task!));
+                    Navigator.pop(context);
+                  },
+                  minWidth: 150,
+                  color: Theme.of(context).colorScheme.inversePrimary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  height: 55,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.close,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      Text(
+                        AppStr.deleteTask,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
-      //     // Add or Update Task button
-      //     MaterialButton(
-      //       onPressed: () {},
-      //       minWidth: 150,
-      //       color: Theme.of(context).colorScheme.inversePrimary,
-      //       shape: RoundedRectangleBorder(
-      //         borderRadius: BorderRadius.circular(15),
-      //       ),
-      //       height: 55,
-      //       child: Text(
-      //         AppStr.addTaskString,
-      //         style: TextStyle(color: Theme.of(context).colorScheme.primary),
-      //       ),
-      //     )
-      //   ],
-      // ),
+          // Add or Update Task button
+          MaterialButton(
+            onPressed: () => handleTask(),
+            minWidth: 150,
+            color: Theme.of(context).colorScheme.inversePrimary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            height: 55,
+            child: Text(
+              task == null ? AppStr.addTaskString : AppStr.updateTaskString,
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            ),
+          )
+        ],
+      ),
     );
   }
 

@@ -6,11 +6,13 @@ class NoteSettings extends StatelessWidget {
   final VoidCallback favoriteOrUnfavorite;
   final VoidCallback editTaskCallBack;
   final VoidCallback restoreTaskCallback;
+  final VoidCallback deleteForever;
   const NoteSettings(
       {super.key,
       required this.task,
       required this.editTaskCallBack,
       required this.favoriteOrUnfavorite,
+      required this.deleteForever,
       required this.restoreTaskCallback});
 
   @override
@@ -25,9 +27,9 @@ class NoteSettings extends StatelessWidget {
           itemBuilder: task.isDeleted == false
               ? ((context) => [
                     PopupMenuItem(
-                      onTap: null,
+                      onTap: editTaskCallBack,
                       child: TextButton.icon(
-                        onPressed: editTaskCallBack,
+                        onPressed: null,
                         icon: Icon(
                           Icons.edit,
                           color: Theme.of(context).colorScheme.inversePrimary,
@@ -78,15 +80,34 @@ class NoteSettings extends StatelessWidget {
                   ])
               : (context) => [
                     PopupMenuItem(
-                      onTap: null,
+                      onTap: restoreTaskCallback,
                       child: TextButton.icon(
-                        onPressed: restoreTaskCallback,
+                        onPressed: null,
                         icon: Icon(
                           Icons.restore_from_trash,
                           color: Theme.of(context).colorScheme.inversePrimary,
                         ),
                         label: Text(
                           'Restore',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.inversePrimary,
+                          ),
+                        ),
+                      ),
+                    ),
+                    PopupMenuItem(
+                      onTap: null,
+                      child: TextButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          deleteForever();
+                        },
+                        icon: Icon(
+                          Icons.delete,
+                          color: Theme.of(context).colorScheme.inversePrimary,
+                        ),
+                        label: Text(
+                          'Delete forever',
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.inversePrimary,
                           ),

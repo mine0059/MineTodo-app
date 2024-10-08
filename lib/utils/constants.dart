@@ -42,7 +42,5 @@ dynamic warningNoTask(BuildContext context) {
   );
 }
 
-// Delete All Task Dialog
-
 /// lottie asset address
 String lottieURL = 'assets/lottie/1.json';

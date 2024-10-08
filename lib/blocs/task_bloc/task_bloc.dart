@@ -18,9 +18,8 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     on<MarkFavoriteOrUnFavoriteTask>(_onMarkFavoriteOrUnFavoriteTask);
     on<RemoveTask>(_onRemoveTask);
     on<RestoreTask>(_onRestoreTask);
+    on<DeleteTask>(_onDeleteTask);
     on<LoadTasksFromPreferences>(_onLoadTasksFromPreferences);
-
-    // _loadTasksFromPreferences();
   }
 
   void _onLoadTasksFromPreferences(
@@ -96,7 +95,6 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
         ..remove(oldTask)
         ..add(newTask);
     }
-    // Handle for favorite tasks
 
     emit(state.copyWith(
         pendingTasks: pendingTasks, completedTasks: completedTasks));
@@ -118,9 +116,9 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     if (task.isCompleted == false) {
       pendingTasks..remove(task);
       completedTasks..insert(0, task.copyWith(isCompleted: true));
-      if (!completedTasks.contains(task.copyWith(isCompleted: true))) {
-        completedTasks..insert(0, task.copyWith(isCompleted: true));
-      }
+      // if (!completedTasks.contains(task.copyWith(isCompleted: true))) {
+      //   completedTasks..insert(0, task.copyWith(isCompleted: true));
+      // }
     } else {
       completedTasks..remove(task);
       if (!pendingTasks.contains(task.copyWith(isCompleted: false))) {
@@ -225,5 +223,23 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     ));
 
     _saveTasksToPreferences(pendingTasks, completedTasks, removeTasks);
+  }
+
+  void _onDeleteTask(DeleteTask event, Emitter<TaskState> emit) {
+    final state = this.state;
+    final task = event.task;
+
+    List<Task> removeTasks = List.from(state.removeTasks);
+    removeTasks.remove(task);
+
+    emit(state.copyWith(
+      removeTasks: removeTasks,
+    ));
+
+    _saveTasksToPreferences(
+      state.pendingTasks,
+      state.completedTasks,
+      removeTasks,
+    );
   }
 }
