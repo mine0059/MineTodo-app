@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:mine_todo_app/blocs/bloc_exports.dart';
 import 'package:mine_todo_app/models/task.dart';
@@ -48,112 +49,122 @@ class _TaskTileState extends State<TaskTile> {
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
       decoration: BoxDecoration(
-          color: widget.task.isCompleted!
-              ? Theme.of(context).colorScheme.secondary
-              : Theme.of(context).colorScheme.primary,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.5),
-              offset: const Offset(0, 4),
-              blurRadius: 5,
-            )
-          ]),
+        color: widget.task.isCompleted!
+            ? Theme.of(context).colorScheme.secondary
+            : Theme.of(context).colorScheme.primary,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey, width: 3),
+      ),
       duration: const Duration(milliseconds: 600),
-      child: ListTile(
-        leading: GestureDetector(
-          onTap: widget.task.isDeleted == false
-              ? () {
-                  context.read<TaskBloc>().add(UpdateTask(task: widget.task));
-                }
-              : null,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 600),
-            decoration: BoxDecoration(
-              color: widget.task.isCompleted!
-                  ? Theme.of(context).colorScheme.inversePrimary
-                  : Theme.of(context).colorScheme.primary,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey, width: 4),
-            ),
-            child: Icon(
-              Icons.check,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
-        ),
-
-        // Task title
-        title: Padding(
-          padding: const EdgeInsets.only(bottom: 5, top: 3),
-          child: Text(
-            widget.task.title,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.inversePrimary,
-              fontWeight: FontWeight.w500,
-              decoration:
-                  widget.task.isCompleted! ? TextDecoration.lineThrough : null,
-            ),
-          ),
-        ),
-
-        // Task subtitle
-        subtitle: Column(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+        child: Column(
+          // mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: widget.task.isDeleted == false
+                          ? () {
+                              context
+                                  .read<TaskBloc>()
+                                  .add(UpdateTask(task: widget.task));
+                            }
+                          : null,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 600),
+                        decoration: BoxDecoration(
+                          color: widget.task.isCompleted!
+                              ? Theme.of(context).colorScheme.inversePrimary
+                              : Theme.of(context).colorScheme.primary,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.grey, width: 3),
+                        ),
+                        child: Icon(
+                          Icons.check,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      widget.task.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.gotu(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        decoration: widget.task.isCompleted!
+                            ? TextDecoration.lineThrough
+                            : null,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    widget.task.isFavorite!
+                        ? const Icon(Icons.bookmark)
+                        : const Icon(Icons.bookmark_add_outlined),
+                    NoteSettings(
+                      task: widget.task,
+                      editTaskCallBack: _editTask,
+                      favoriteOrUnfavorite: () => context
+                          .read<TaskBloc>()
+                          .add(MarkFavoriteOrUnFavoriteTask(task: widget.task)),
+                      restoreTaskCallback: () => context
+                          .read<TaskBloc>()
+                          .add(RestoreTask(task: widget.task)),
+                      deleteForever: () {
+                        deleteTaskDialog(context);
+                      },
+                    )
+                  ],
+                ),
+              ],
+            ),
             Text(
               widget.task.subtitle,
               style: TextStyle(
-                color: Theme.of(context).colorScheme.inversePrimary,
+                color: Theme.of(context).colorScheme.onPrimary,
                 fontWeight: FontWeight.w500,
+                fontSize: 14,
                 decoration: widget.task.isCompleted!
                     ? TextDecoration.lineThrough
                     : null,
               ),
             ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 10, top: 10),
-                child: Column(
-                  children: [
-                    Text(
-                      DateFormat('hh:mm a').format(widget.task.createdAtTime),
-                      style: const TextStyle(
-                        fontSize: 14,
-                      ),
-                    ),
-                    Text(
-                      DateFormat.yMMMEd().format(widget.task.createdAtDate),
-                      style: const TextStyle(
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  DateFormat.yMMMEd().format(widget.task.createdAtDate),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
                 ),
-              ),
-            )
+                Text(
+                  DateFormat('hh:mm a').format(widget.task.createdAtTime),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
-        trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-          widget.task.isFavorite!
-              ? const Icon(Icons.bookmark)
-              : const Icon(Icons.bookmark_add_outlined),
-          NoteSettings(
-            task: widget.task,
-            editTaskCallBack: _editTask,
-            favoriteOrUnfavorite: () => context
-                .read<TaskBloc>()
-                .add(MarkFavoriteOrUnFavoriteTask(task: widget.task)),
-            restoreTaskCallback: () =>
-                context.read<TaskBloc>().add(RestoreTask(task: widget.task)),
-            deleteForever: () {
-              deleteTaskDialog(context);
-            },
-          )
-        ]),
       ),
     );
   }

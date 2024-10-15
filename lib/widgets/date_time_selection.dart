@@ -22,7 +22,7 @@ class DateTimeSelectionWidget extends StatelessWidget {
       child: Container(
         width: double.infinity,
         margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-        height: 55,
+        height: 50,
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.primary,
           border: Border.all(
@@ -42,7 +42,7 @@ class DateTimeSelectionWidget extends StatelessWidget {
             ),
             Container(
               margin: const EdgeInsets.only(right: 10),
-              width: isTime ? 150 : 80,
+              width: isTime ? 100 : 80,
               height: 35,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),

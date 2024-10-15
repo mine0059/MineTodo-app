@@ -13,12 +13,12 @@ class PendingTaskScreen extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Center(
-            child: Chip(
-                label: Text(
-              '${tasksList.length} Pending | ${state.completedTasks.length} Completed',
-            )),
-          ),
+          // Center(
+          //   child: Chip(
+          //       label: Text(
+          //     '${tasksList.length} Pending | ${state.completedTasks.length} Completed',
+          //   )),
+          // ),
           Expanded(
               child: TaskList(
             taskList: tasksList,

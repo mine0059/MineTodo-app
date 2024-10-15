@@ -19,24 +19,32 @@ class RepTextfield extends StatelessWidget {
       child: ListTile(
         title: TextFormField(
           controller: controller,
-          maxLines: !isForDescription ? 6 : null,
-          cursorHeight: !isForDescription ? 50 : null,
+          // maxLines: !isForDescription ? 1 : null,
+          // cursorHeight: !isForDescription ? 25 : null,
           cursorColor: Theme.of(context).colorScheme.inversePrimary,
           style: TextStyle(color: Theme.of(context).colorScheme.inversePrimary),
           decoration: InputDecoration(
-              border: isForDescription ? InputBorder.none : null,
-              counter: Container(),
-              hintText: isForDescription ? AppStr.addNote : null,
-              prefixIcon: isForDescription ? const Icon(Icons.bookmark) : null,
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(
+            border: UnderlineInputBorder(
+              borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.inversePrimary,
-                ),
+                  width: 3),
+            ),
+            counter: Container(),
+            hintText: isForDescription ? AppStr.addNote : 'Add Title',
+            prefixIcon: isForDescription
+                ? const Icon(Icons.description)
+                : const Icon(Icons.title),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.inversePrimary,
               ),
-              focusedErrorBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                color: Colors.blue.shade300,
-              ))),
+            ),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+            ),
+          ),
         ),
       ),
     );

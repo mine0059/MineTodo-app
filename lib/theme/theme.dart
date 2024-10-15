@@ -14,6 +14,7 @@ class AppThemes {
           primary: Colors.grey.shade800,
           secondary: Colors.grey.shade700,
           inversePrimary: Colors.grey.shade300,
+          onPrimary: Colors.white.withOpacity(0.6),
         )),
     AppTheme.lightTheme: ThemeData(
       brightness: Brightness.light,
@@ -22,6 +23,7 @@ class AppThemes {
         primary: Colors.grey.shade200,
         secondary: Colors.grey.shade400,
         inversePrimary: Colors.grey.shade800,
+        onPrimary: Colors.black.withOpacity(0.6),
       ),
     ),
   };

@@ -13,9 +13,7 @@ class CompletedTaskScreen extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Center(
-            child: Chip(label: Text('${tasksList.length} Task')),
-          ),
+          Chip(label: Text('${tasksList.length} Task')),
           Expanded(child: TaskList(taskList: tasksList))
         ],
       );

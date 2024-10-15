@@ -1,4 +1,6 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mine_todo_app/blocs/bloc_exports.dart';
 import 'package:mine_todo_app/screens/completed_task_screen.dart';
@@ -48,7 +50,11 @@ class _TabsScreenState extends State<TabsScreen> {
         elevation: 0,
         backgroundColor: Colors.transparent,
         foregroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // title: Text('Mine Todo app'),
+        centerTitle: true,
+        title: Text(
+          _selectedPageIndex == 0 ? 'My Tasks' : 'Completed Tasks',
+          style: GoogleFonts.gotu(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
       ),
       backgroundColor: Theme.of(context).colorScheme.surface,
       floatingActionButton: _selectedPageIndex == 0
@@ -71,13 +77,16 @@ class _TabsScreenState extends State<TabsScreen> {
             _selectedPageIndex = index;
           });
         },
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        selectedItemColor: Theme.of(context).colorScheme.inversePrimary,
+        unselectedItemColor: Theme.of(context).colorScheme.secondary,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.incomplete_circle_sharp),
+            icon: Icon(Icons.pending_actions_outlined),
             label: 'Pending Task',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.incomplete_circle_sharp),
+            icon: Icon(Icons.task_alt_outlined),
             label: 'Completed Tasks',
           ),
         ],
@@ -92,101 +101,94 @@ class _TabsScreenState extends State<TabsScreen> {
       height: double.infinity,
       child: Column(
         children: [
-          // Custom App Bar
-          BlocBuilder<TaskBloc, TaskState>(builder: (context, state) {
-            final int totalTasks =
-                state.pendingTasks.length + state.completedTasks.length;
-            double progress = 0;
-            String percentageText = '0%';
-            if (totalTasks > 0) {
-              progress = (state.completedTasks.length / totalTasks);
-              percentageText = '${(progress * 100).toStringAsFixed(0)}%';
-            }
-            return Container(
-              margin: const EdgeInsets.only(top: 60),
-              width: double.infinity,
-              height: 100,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // progress indicator
-                  if (_selectedPageIndex == 0)
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        SizedBox(
-                          width: 60,
-                          height: 60,
-                          child: CircularProgressIndicator(
-                            value: progress,
-                            backgroundColor:
-                                Theme.of(context).colorScheme.inversePrimary,
-                            valueColor:
-                                const AlwaysStoppedAnimation(Colors.grey),
-                          ),
-                        ),
-                        Text(
-                          percentageText,
-                          style: GoogleFonts.dmSerifText(
-                              fontSize: 18.0, fontWeight: FontWeight.bold),
-                        )
-                      ],
-                    ),
-                  const SizedBox(width: 25),
-                  // Top Level Task Info
-                  _selectedPageIndex == 0
-                      ? Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+          BlocBuilder<TaskBloc, TaskState>(
+            builder: (context, state) {
+              final int totalTasks =
+                  state.pendingTasks.length + state.completedTasks.length;
+              double progress = 0;
+              String percentageText = '0%';
+              if (totalTasks > 0) {
+                progress = (state.completedTasks.length / totalTasks);
+                percentageText = '${(progress * 100).toStringAsFixed(0)}%';
+              }
+              return Container(
+                  margin: const EdgeInsets.only(left: 18, top: 10),
+                  child: _selectedPageIndex == 0
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text(
-                              AppStr.mainTitle,
-                              style: GoogleFonts.dmSerifText(
-                                fontSize: 50.0,
+                              Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 45,
+                                    height: 45,
+                                    child: CircularProgressIndicator(
+                                      value: progress,
+                                      backgroundColor: Theme.of(context)
+                                          .colorScheme
+                                          .inversePrimary,
+                                      valueColor: const AlwaysStoppedAnimation(
+                                          Colors.grey),
+                                    ),
+                                  ),
+                                  Text(
+                                    percentageText,
+                                    style: GoogleFonts.gotu(
+                                        fontSize: 12.0,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ],
                               ),
-                            ),
-                            Text(
-                              '${state.completedTasks.length} of ${state.pendingTasks.length} Task',
-                              style: GoogleFonts.dmSerifText(
-                                fontSize: 17,
+                              const SizedBox(width: 15),
+                              Text(
+                                '${state.completedTasks.length} of ${state.pendingTasks.length} Task',
+                                style: GoogleFonts.gotu(
+                                  fontSize: 17,
+                                ),
                               ),
-                            ),
-                          ],
-                        )
-                      : Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Completed',
-                              style: GoogleFonts.dmSerifText(
-                                fontSize: 50.0,
-                              ),
-                            ),
-                            Text(
-                              'Task',
-                              style: GoogleFonts.dmSerifText(
-                                fontSize: 20,
-                              ),
-                            ),
-                          ],
-                        )
-                ],
-              ),
-            );
-          }),
-          // if (_selectedPageIndex == 0)
-          const Padding(
-            padding: EdgeInsets.only(top: 10),
-            child: Divider(
-              thickness: 2,
-              indent: 100,
-            ),
+                            ])
+                      : null);
+            },
           ),
 
           // Tasks
-          Expanded(
-            child: _pageDetails[_selectedPageIndex]['pageName'],
+          BlocBuilder<TaskBloc, TaskState>(
+            builder: (context, state) {
+              return Expanded(
+                  child: _selectedPageIndex == 0 && state.pendingTasks.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              FadeIn(
+                                child: SizedBox(
+                                  width: 250,
+                                  height: 200,
+                                  child: SvgPicture.asset(
+                                    'assets/vectors/undraw_add_tasks.svg',
+                                  ),
+                                ),
+                              ),
+                              FadeInUp(
+                                from: 30,
+                                child: SizedBox(
+                                  width: 300,
+                                  child: Text(
+                                    AppStr.noTask,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : _pageDetails[_selectedPageIndex]['pageName']);
+            },
           )
         ],
       ),

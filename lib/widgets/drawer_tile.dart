@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class DrawerTile extends StatelessWidget {
   final String title;
-  final String? trailing;
+  final Widget? trailing;
   final Widget leading;
   final void Function()? onTap;
   const DrawerTile(
@@ -10,7 +10,7 @@ class DrawerTile extends StatelessWidget {
       required this.title,
       required this.leading,
       this.trailing,
-      required this.onTap});
+      this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -19,10 +19,9 @@ class DrawerTile extends StatelessWidget {
       child: ListTile(
         title: Text(
           title,
-          // style: TextStyle(color: Theme.of(context).colorScheme.inversePrimary),
         ),
         leading: leading,
-        trailing: trailing != null ? Text(trailing!) : null,
+        trailing: trailing,
         onTap: onTap,
       ),
     );

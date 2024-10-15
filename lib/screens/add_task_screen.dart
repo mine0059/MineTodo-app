@@ -250,81 +250,89 @@ class AddTaskScreen extends StatelessWidget {
             isForDescription: true,
           ),
 
-          // Time selection
-          DateTimeSelectionWidget(
-            onTap: () {
-              showModalBottomSheet(
-                  context: context,
-                  builder: (_) => SizedBox(
-                        height: 280,
-                        child: TimePickerWidget(
-                          initDateTime: selectedTime ?? DateTime.now(),
-                          onChange: (_, __) {},
-                          dateFormat: 'HH:mm',
-                          onConfirm: (dateTime, _) {
-                            context
-                                .read<TaskBloc>()
-                                .add(SelectTime(selectedTime: dateTime));
-                          },
-                          pickerTheme: DateTimePickerTheme(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.surface,
-                            confirmTextStyle: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .inversePrimary,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold),
-                            itemTextStyle: TextStyle(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .inversePrimary, // Picker item text color
-                              fontSize: 16,
-                            ),
-                          ),
+          Row(
+            children: [
+              // Date selection
+              Expanded(
+                child: DateTimeSelectionWidget(
+                  title: AppStr.dateString,
+                  onTap: () {
+                    DatePicker.showDatePicker(
+                      context,
+                      initialDateTime: selectedDate ?? DateTime.now(),
+                      maxDateTime: DateTime(2030, 4, 5),
+                      minDateTime: DateTime.now(),
+                      onConfirm: (dateTime, _) {
+                        context
+                            .read<TaskBloc>()
+                            .add(SelectDate(selectedDate: dateTime));
+                      },
+                      pickerTheme: DateTimePickerTheme(
+                        backgroundColor: Theme.of(context).colorScheme.surface,
+                        confirmTextStyle: TextStyle(
+                            color: Theme.of(context).colorScheme.inversePrimary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold),
+                        itemTextStyle: TextStyle(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .inversePrimary, // Picker item text color
+                          fontSize: 16,
                         ),
-                      ));
-            },
-            title: 'Time',
-            time: selectedTime != null
-                ? DateFormat('hh:mm a').format(selectedTime)
-                : DateFormat('hh:mm a').format(DateTime.now()).toString(),
-          ),
-
-          // Date selection
-          DateTimeSelectionWidget(
-            title: AppStr.dateString,
-            onTap: () {
-              DatePicker.showDatePicker(
-                context,
-                initialDateTime: selectedDate ?? DateTime.now(),
-                maxDateTime: DateTime(2030, 4, 5),
-                minDateTime: DateTime.now(),
-                onConfirm: (dateTime, _) {
-                  context
-                      .read<TaskBloc>()
-                      .add(SelectDate(selectedDate: dateTime));
-                },
-                pickerTheme: DateTimePickerTheme(
-                  backgroundColor: Theme.of(context).colorScheme.surface,
-                  confirmTextStyle: TextStyle(
-                      color: Theme.of(context).colorScheme.inversePrimary,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold),
-                  itemTextStyle: TextStyle(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .inversePrimary, // Picker item text color
-                    fontSize: 16,
-                  ),
+                      ),
+                    );
+                  },
+                  isTime: true,
+                  time: selectedDate != null
+                      ? DateFormat.yMMMd().format(selectedDate)
+                      : DateFormat.yMMMd().format(DateTime.now()).toString(),
                 ),
-              );
-            },
-            isTime: true,
-            time: selectedDate != null
-                ? DateFormat.yMMMEd().format(selectedDate)
-                : DateFormat.yMMMEd().format(DateTime.now()).toString(),
-          )
+              ),
+
+              // Time selection
+              Expanded(
+                child: DateTimeSelectionWidget(
+                  onTap: () {
+                    showModalBottomSheet(
+                        context: context,
+                        builder: (_) => SizedBox(
+                              height: 280,
+                              child: TimePickerWidget(
+                                initDateTime: selectedTime ?? DateTime.now(),
+                                onChange: (_, __) {},
+                                dateFormat: 'HH:mm',
+                                onConfirm: (dateTime, _) {
+                                  context
+                                      .read<TaskBloc>()
+                                      .add(SelectTime(selectedTime: dateTime));
+                                },
+                                pickerTheme: DateTimePickerTheme(
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.surface,
+                                  confirmTextStyle: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .inversePrimary,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                  itemTextStyle: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .inversePrimary, // Picker item text color
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ));
+                  },
+                  title: 'Time',
+                  time: selectedTime != null
+                      ? DateFormat('hh:mm a').format(selectedTime)
+                      : DateFormat('hh:mm a').format(DateTime.now()).toString(),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

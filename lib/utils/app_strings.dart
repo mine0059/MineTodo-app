@@ -2,6 +2,8 @@ class AppStr {
   static const String mainTitle = "My Tasks";
   static const String deletedTask = "This task was deleted";
   static const String doneAllTask = "You Have Done All Tasks!👌";
+  static const String noTask =
+      "It appears to be you have no task created Press the + button to proceed.";
   static const String addNewTask = "Add New ";
   static const String updateCurrentTask = "Update ";
   static const String taskStrnig = "Task";

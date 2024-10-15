@@ -39,10 +39,10 @@ class MyDrawer extends StatelessWidget {
               // task
               BlocBuilder<TaskBloc, TaskState>(builder: (context, state) {
                 return DrawerTile(
-                  title: 'My Task',
+                  title: 'My Tasks',
                   leading: const Icon(CupertinoIcons.folder),
-                  trailing:
-                      '${state.pendingTasks.length}|${state.completedTasks.length}',
+                  trailing: Text(
+                      '${state.pendingTasks.length}|${state.completedTasks.length}'),
                   onTap: () => Navigator.of(context).pushNamed(TabsScreen.id),
                 );
               }),
@@ -51,9 +51,9 @@ class MyDrawer extends StatelessWidget {
                 List<Task> favoriteTasks =
                     context.read<TaskBloc>().favoriteTasks;
                 return DrawerTile(
-                  title: 'Favorite Task',
-                  leading: const Icon(Icons.folder_special),
-                  trailing: '${favoriteTasks.length}',
+                  title: 'Bookmarked Tasks',
+                  leading: const Icon(Icons.bookmark),
+                  trailing: Text('${favoriteTasks.length}'),
                   onTap: () =>
                       Navigator.of(context).pushNamed(FavoriteTaskScreen.id),
                 );
@@ -64,7 +64,7 @@ class MyDrawer extends StatelessWidget {
                 return DrawerTile(
                   title: 'Bin',
                   leading: const Icon(CupertinoIcons.trash),
-                  trailing: '${state.removeTasks.length}',
+                  trailing: Text('${state.removeTasks.length}'),
                   onTap: () => Navigator.of(context).pushNamed(RecycleBin.id),
                 );
               }),
@@ -83,21 +83,21 @@ class MyDrawer extends StatelessWidget {
                 onTap: () {},
               ),
 
-              const SizedBox(
-                height: 30,
-              ),
-              BlocBuilder<SwitchBloc, SwitchState>(
-                builder: (context, state) {
-                  return CupertinoSwitch(
+              // Bin
+              BlocBuilder<SwitchBloc, SwitchState>(builder: (context, state) {
+                return DrawerTile(
+                  title: 'Light Mode',
+                  leading: const Icon(CupertinoIcons.light_max),
+                  trailing: CupertinoSwitch(
                     value: state.switchValue,
                     onChanged: (newValue) {
                       newValue
                           ? context.read<SwitchBloc>().add(SwitchOnEvent())
                           : context.read<SwitchBloc>().add(SwitchOffEvent());
                     },
-                  );
-                },
-              )
+                  ),
+                );
+              }),
             ],
           ),
         ));
